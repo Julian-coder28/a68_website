@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>a68</title>
+<style>
+:root {
+  --bg1: #061427;
+  --bg2: #0A2140;
+  --purple: #3a1b58;
+  --accent: #2da8ff;
+  --mx: 50%;
+  --my: 50%;
+}
+* {
+  box-sizing: border-box;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;
+  color: #e8f2ff;
+  background: radial-gradient(circle at 25% 20%, rgba(90, 45, 130, 0.35), rgba(6, 20, 39, 0)),
+    linear-gradient(135deg, #291238 0%, #0b1b33 45%, #061427 100%);
+}
+body {
+  min-height: calc(100vh + 180px);
+  overflow-x: hidden;
+  position: relative;
+}
+#bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(45, 168, 255, 0.22), rgba(6, 20, 39, 0) 45%);
+  mix-blend-mode: screen;
+  opacity: 0.6;
+}
+#noise {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='0.12'/></svg>");
+  opacity: 0.18;
+  mix-blend-mode: soft-light;
+}
+main {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 0 5vw;
+}
+.hero {
+  max-width: 1100px;
+}
+h1 {
+  font-size: clamp(2.6rem, 5.2vw, 5.4rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 0 0 1.2rem;
+  color: rgba(232, 242, 255, 0.75);
+  text-shadow: 0 8px 30px rgba(6, 20, 39, 0.4);
+}
+h1 .accent {
+  color: var(--accent);
+}
+h1 .bright {
+  color: #f2f6ff;
+}
+p {
+  margin: 0 0 2.2rem;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  color: rgba(232, 242, 255, 0.6);
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  justify-content: center;
+  align-items: center;
+}
+input[type="email"] {
+  background: rgba(9, 15, 30, 0.45);
+  border: 1px solid rgba(122, 140, 190, 0.35);
+  color: #e8f2ff;
+  padding: 1rem 1.4rem;
+  border-radius: 999px;
+  min-width: 300px;
+  max-width: 520px;
+  width: min(78vw, 520px);
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(45, 168, 255, 0.08), inset 0 0 18px rgba(8, 18, 36, 0.8);
+}
+input[type="email"]::placeholder {
+  color: rgba(232, 242, 255, 0.35);
+}
+input[type="email"]:focus {
+  border-color: rgba(45, 168, 255, 0.85);
+  box-shadow: 0 0 0 2px rgba(45, 168, 255, 0.2), inset 0 0 22px rgba(8, 18, 36, 0.9);
+}
+button {
+  background: rgba(9, 15, 30, 0.5);
+  border: 1px solid rgba(45, 168, 255, 0.9);
+  color: #eef4ff;
+  font-weight: 600;
+  padding: 0.95rem 2.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 12px 32px rgba(45, 168, 255, 0.2);
+}
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px rgba(45, 168, 255, 0.35);
+}
+button:active {
+  transform: translateY(0);
+}
+#status {
+  margin-top: 1rem;
+  min-height: 1.2rem;
+  font-size: 0.95rem;
+  color: rgba(45, 168, 255, 0.9);
+}
+.footer-link {
+  position: fixed;
+  left: 50%;
+  bottom: 1.75rem;
+  z-index: 3;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.footer-link.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.impressum-link {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(8, 18, 36, 0.7);
+  border: 1px solid rgba(45, 168, 255, 0.25);
+  color: rgba(232, 242, 255, 0.75);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(6, 20, 39, 0.45);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.impressum-link:hover {
+  color: rgba(232, 242, 255, 0.95);
+  border-color: rgba(45, 168, 255, 0.6);
+  transform: translateY(-1px);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 600px) {
+  h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+  input[type="email"] {
+    width: min(84vw, 360px);
+  }
+  .footer-link {
+    bottom: 1.25rem;u
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="overlay"></div>
+<div id="noise"></div>
+<main>
+  <div class="hero">
+    <h1><span class="accent">Revolutionizing</span> insurance <span class="bright">fraud</span> <span class="accent">detection</span></h1>
+    <form id="newsletter" novalidate>
+      <label class="sr-only" for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+      <button type="submit">Join newsletter</button>
+    </form>
+    <div id="status" role="status" aria-live="polite"></div>
+  </div>
+</main>
+<div class="footer-link">
+  <a class="impressum-link" href="impressum.html">Impressum</a>
+</div>
+<script>
+(() => {
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let reducedMotion = prefersReduced.matches;
+  const logo = {
+    img: new Image(),
+    ready: false,
+    ratio: 1,
+    white: null
+  };
+
+  logo.img.decoding = 'async';
+  logo.img.src = 'black.png';
+  logo.img.onload = () => {
+    logo.ready = true;
+    logo.ratio = logo.img.width / logo.img.height || 1;
+    logo.white = document.createElement('canvas');
+    logo.white.width = logo.img.width;
+    logo.white.height = logo.img.height;
+    const wctx = logo.white.getContext('2d');
+    wctx.clearRect(0, 0, logo.white.width, logo.white.height);
+    wctx.drawImage(logo.img, 0, 0);
+    wctx.globalCompositeOperation = 'source-in';
+    wctx.fillStyle = '#ffffff';
+    wctx.fillRect(0, 0, logo.white.width, logo.white.height);
+    if (reducedMotion) {
+      render(0);
+    }
+  };
+  logo.img.onerror = () => {
+    logo.ready = false;
+  };
+
+  const state = {
+    w: 0,
+    h: 0,
+    dpr: Math.min(window.devicePixelRatio || 1, 2),
+    pointer: { x: 0, y: 0, tx: 0, ty: 0 },
+    scroll: 0,
+    scrollV: 0,
+    time: 0,
+    particles: [],
+    blobs: [],
+    logo: null,
+    animating: false
+  };
+
+  const config = {
+    particleCount: 180,
+    blobCount: 6
+  };
+
+  const rand = (min, max) => Math.random() * (max - min) + min;
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const smoothstep = (t) => t * t * (3 - 2 * t);
+
+  const setSize = () => {
+    const rect = canvas.getBoundingClientRect();
+    state.w = rect.width;
+    state.h = rect.height;
+    state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(state.w * state.dpr);
+    canvas.height = Math.floor(state.h * state.dpr);
+    ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+    const area = state.w * state.h;
+    const baseCount = Math.floor(area / 12000);
+    config.particleCount = clamp(baseCount, 120, 240);
+    config.blobCount = clamp(Math.floor(area / 200000), 4, 7);
+
+    initBlobs();
+    initParticles();
+    render(state.time);
+  };
+
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(setSize, 120);
+  });
+
+  const setPointer = (x, y) => {
+    const nx = (x / state.w) * 2 - 1;
+    const ny = (y / state.h) * 2 - 1;
+    state.pointer.tx = clamp(nx, -1, 1);
+    state.pointer.ty = clamp(ny, -1, 1);
+    const mx = clamp((x / state.w) * 100, 0, 100);
+    const my = clamp((y / state.h) * 100, 0, 100);
+    document.documentElement.style.setProperty('--mx', `${mx}%`);
+    document.documentElement.style.setProperty('--my', `${my}%`);
+  };
+
+  window.addEventListener('pointermove', (e) => {
+    if (reducedMotion) return;
+    setPointer(e.clientX, e.clientY);
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    if (reducedMotion) return;
+    if (!e.touches || !e.touches[0]) return;
+    const t = e.touches[0];
+    setPointer(t.clientX, t.clientY);
+  }, { passive: true });
+
+  const updateScroll = () => {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const nextScroll = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
+    const delta = nextScroll - state.scroll;
+    state.scroll = nextScroll;
+    state.scrollV = lerp(state.scrollV, delta * 10, 0.25);
+  };
+  window.addEventListener('scroll', updateScroll, { passive: true });
+
+  const initBlobs = () => {
+    state.blobs = [];
+    for (let i = 0; i < config.blobCount; i++) {
+      state.blobs.push({
+        x: rand(0.1, 0.9),
+        y: rand(0.1, 0.9),
+        r: rand(0.2, 0.45),
+        vx: rand(-0.02, 0.02),
+        vy: rand(-0.02, 0.02),
+        hue: rand(185, 205),
+        alpha: rand(0.12, 0.28)
+      });
+    }
+  };
+
+  const initParticles = () => {
+    state.particles = [];
+    const centerX = state.w * 0.5;
+    const centerY = state.h * 0.5;
+    const clusterRadius = Math.min(state.w, state.h) * 0.22;
+    for (let i = 0; i < config.particleCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.sqrt(Math.random()) * clusterRadius;
+      state.particles.push({
+        x: centerX + Math.cos(angle) * radius,
+        y: centerY + Math.sin(angle) * radius,
+        vx: rand(-0.3, 0.3),
+        vy: rand(-0.3, 0.3),
+        radius: rand(0.8, 1.8),
+        seed: Math.random() * Math.PI * 2,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  };
+
+  const sceneWeights = (t) => {
+    const s = t * 3;
+    const i = Math.floor(s);
+    const f = smoothstep(s - i);
+    const w = [0, 0, 0, 0];
+    w[clamp(i, 0, 3)] = 1 - f;
+    w[clamp(i + 1, 0, 3)] += f;
+    return w;
+  };
+
+  const drawBackground = () => {
+    const g = ctx.createLinearGradient(0, 0, state.w, state.h);
+    g.addColorStop(0, '#2b123f');
+    g.addColorStop(0.55, '#0b1b33');
+    g.addColorStop(1, '#061427');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, state.w, state.h);
+    const glow = ctx.createRadialGradient(state.w * 0.22, state.h * 0.18, 0, state.w * 0.22, state.h * 0.18, Math.max(state.w, state.h) * 0.75);
+    glow.addColorStop(0, 'rgba(90, 45, 130, 0.55)');
+    glow.addColorStop(1, 'rgba(6, 20, 39, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, state.w, state.h);
+  };
+
+  const drawBlobs = (parallax, wts) => {
+    const accent = [45, 168, 255];
+    for (const blob of state.blobs) {
+      const px = (blob.x + Math.sin(state.time * 0.05 + blob.vx) * 0.02) * state.w;
+      const py = (blob.y + Math.cos(state.time * 0.05 + blob.vy) * 0.02) * state.h;
+      const r = blob.r * Math.min(state.w, state.h);
+      const offx = parallax.x * 30;
+      const offy = parallax.y * 30;
+      const core = ctx.createRadialGradient(px + offx, py + offy, 0, px + offx, py + offy, r);
+      const alpha = blob.alpha * (0.8 + wts[1] * 0.4 + wts[3] * 0.3);
+      core.addColorStop(0, `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${alpha})`);
+      core.addColorStop(1, 'rgba(6, 20, 39, 0)');
+      ctx.fillStyle = core;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+    }
+  };
+
+  const drawLogo = (parallax) => {
+    if (!logo.ready) {
+      state.logo = null;
+      return;
+    }
+    const ratio = logo.ratio || 1;
+    const base = clamp(state.w * 0.22, 120, 300);
+    const scale = 1;
+    const width = base * scale;
+    const height = width / ratio;
+    const driftX = 0;
+    const driftY = 0;
+    const px = state.w * 0.5 + parallax.x * state.w * 0.22 + driftX;
+    const py = state.h * 0.26 + parallax.y * state.h * 0.22 + driftY;
+    const alpha = 0.32;
+    state.logo = { x: px, y: py, r: Math.max(width, height) * 0.45 };
+
+    ctx.save();
+    const glow = ctx.createRadialGradient(px, py, 0, px, py, Math.max(width, height) * 1.1);
+    glow.addColorStop(0, 'rgba(45, 168, 255, 0.3)');
+    glow.addColorStop(1, 'rgba(6, 20, 39, 0)');
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = glow;
+    ctx.fillRect(px - width, py - height, width * 2, height * 2);
+
+    ctx.globalCompositeOperation = 'source-over';
+    if (logo.white) {
+      ctx.save();
+      ctx.filter = 'blur(14px)';
+      ctx.globalAlpha = alpha * 0.4;
+      ctx.drawImage(logo.white, px - width / 2, py - height / 2, width, height);
+      ctx.restore();
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(logo.white, px - width / 2, py - height / 2, width, height);
+    } else {
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(logo.img, px - width / 2, py - height / 2, width, height);
+    }
+    ctx.restore();
+  };
+
+  const drawParticles = (parallax, wts) => {
+    const intake = wts[0];
+    const network = wts[1];
+    const scoring = wts[2];
+    const shield = wts[3];
+    const flowStrength = lerp(0.08, 0.22, intake);
+    const alignStrength = lerp(0.0, 0.18, scoring);
+    const repulsion = reducedMotion ? 0 : 0.6;
+    const hub = {
+      x: state.w * 0.5 + parallax.x * 25,
+      y: state.h * 0.5 + parallax.y * 25
+    };
+    const clusterRadius = Math.min(state.w, state.h) * 0.22;
+
+    for (const p of state.particles) {
+      const angle = Math.sin(state.time * 0.15 + p.seed) * 0.4;
+      const drift = Math.cos(state.time * 0.2 + p.seed) * 0.2;
+
+      if (!reducedMotion) {
+        p.vx += Math.sin(p.seed + state.time * 0.2) * 0.01;
+        p.vy += Math.cos(p.seed + state.time * 0.18) * 0.01;
+      } else {
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+      }
+
+      const dx = hub.x - p.x;
+      const dy = hub.y - p.y;
+      const dist = Math.hypot(dx, dy) + 0.001;
+      p.vx += (dx / dist) * flowStrength * 0.3;
+      p.vy += (dy / dist) * flowStrength * 0.3;
+      p.vx += (dx / dist) * 0.02;
+      p.vy += (dy / dist) * 0.02;
+      const over = dist - clusterRadius;
+      if (over > 0) {
+        p.vx += (dx / dist) * (over * 0.004);
+        p.vy += (dy / dist) * (over * 0.004);
+      } else if (dist < clusterRadius * 0.25) {
+        const under = clusterRadius * 0.25 - dist;
+        p.vx -= (dx / dist) * (under * 0.003);
+        p.vy -= (dy / dist) * (under * 0.003);
+      }
+
+      if (!reducedMotion) {
+        const pointerX = state.w * 0.5 + state.pointer.x * state.w * 0.3;
+        const pointerY = state.h * 0.5 + state.pointer.y * state.h * 0.3;
+        const pdx = p.x - pointerX;
+        const pdy = p.y - pointerY;
+        const pd = Math.hypot(pdx, pdy);
+        const influence = clamp(1 - pd / 160, 0, 1) * repulsion;
+        p.vx += (pdx / (pd + 0.001)) * influence * 0.8;
+        p.vy += (pdy / (pd + 0.001)) * influence * 0.8;
+      }
+      if (state.logo) {
+        const ldx = p.x - state.logo.x;
+        const ldy = p.y - state.logo.y;
+        const ld = Math.hypot(ldx, ldy) + 0.001;
+        if (ld < state.logo.r) {
+          const force = (1 - ld / state.logo.r) * 1.6;
+          p.vx += (ldx / ld) * force;
+          p.vy += (ldy / ld) * force;
+        }
+      }
+
+      if (scoring > 0.05) {
+        const sweep = Math.sin(state.time * 0.5 + state.scroll * Math.PI * 2);
+        p.vx += Math.cos(p.phase + sweep) * alignStrength * 0.05;
+        p.vy += Math.sin(p.phase + sweep) * alignStrength * 0.05;
+      }
+
+      p.vx *= 0.96;
+      p.vy *= 0.96;
+
+      p.x += p.vx + Math.cos(angle) * 0.1;
+      p.y += p.vy + Math.sin(drift) * 0.1;
+
+      if (p.x < -20) p.x = state.w + 20;
+      if (p.x > state.w + 20) p.x = -20;
+      if (p.y < -20) p.y = state.h + 20;
+      if (p.y > state.h + 20) p.y = -20;
+    }
+
+    for (const p of state.particles) {
+      const offsetX = parallax.x * 12;
+      const offsetY = parallax.y * 12;
+      const alpha = 0.35 + network * 0.25 + shield * 0.2;
+      ctx.fillStyle = `rgba(210, 235, 255, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(p.x + offsetX, p.y + offsetY, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  };
+
+  const drawLines = (parallax, wts) => {
+    const network = wts[1];
+    const scoring = wts[2];
+    const shield = wts[3];
+    const connectDist = lerp(70, 140, network);
+    const lineAlpha = lerp(0.05, 0.18, network) + shield * 0.05;
+    const offsetX = parallax.x * 6;
+    const offsetY = parallax.y * 6;
+
+    for (let i = 0; i < state.particles.length; i++) {
+      const p = state.particles[i];
+      for (let j = i + 1; j < state.particles.length; j++) {
+        const q = state.particles[j];
+        const dx = p.x - q.x;
+        const dy = p.y - q.y;
+        const d = Math.hypot(dx, dy);
+        if (d < connectDist) {
+          const midx = (p.x + q.x) / 2 + Math.sin(state.time + p.seed) * 6;
+          const midy = (p.y + q.y) / 2 + Math.cos(state.time + q.seed) * 6;
+          const alpha = lineAlpha * (1 - d / connectDist) * (0.6 + Math.sin(p.phase + state.time) * 0.4);
+          ctx.strokeStyle = `rgba(45, 168, 255, ${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(p.x + offsetX, p.y + offsetY);
+          ctx.quadraticCurveTo(midx + offsetX, midy + offsetY, q.x + offsetX, q.y + offsetY);
+          ctx.stroke();
+        }
+      }
+    }
+
+  };
+
+  const render = (ts) => {
+    state.time = ts * 0.001;
+    updateScroll();
+
+    if (reducedMotion) {
+      state.pointer.x = 0;
+      state.pointer.y = 0;
+      state.scrollV = 0;
+    } else {
+      state.pointer.x = lerp(state.pointer.x, state.pointer.tx, 0.16);
+      state.pointer.y = lerp(state.pointer.y, state.pointer.ty, 0.16);
+      state.scrollV = lerp(state.scrollV, 0, 0.08);
+    }
+
+    const parallax = reducedMotion ? { x: 0, y: 0 } : { x: state.pointer.x, y: state.pointer.y };
+    const logoParallax = reducedMotion ? { x: 0, y: 0 } : { x: state.pointer.tx, y: state.pointer.ty };
+    const wts = sceneWeights(state.scroll);
+
+    ctx.clearRect(0, 0, state.w, state.h);
+    drawBackground();
+    drawBlobs(parallax, wts);
+    drawLogo(logoParallax);
+    drawParticles(parallax, wts);
+    drawLines(parallax, wts);
+  };
+
+  let rafId = null;
+  const animate = (t) => {
+    render(t);
+    rafId = requestAnimationFrame(animate);
+  };
+
+  const startAnimation = () => {
+    if (state.animating) return;
+    state.animating = true;
+    rafId = requestAnimationFrame(animate);
+  };
+
+  const stopAnimation = () => {
+    if (!state.animating) return;
+    state.animating = false;
+    if (rafId) cancelAnimationFrame(rafId);
+  };
+
+  prefersReduced.addEventListener('change', (e) => {
+    reducedMotion = e.matches;
+    if (reducedMotion) {
+      stopAnimation();
+      render(0);
+    } else {
+      startAnimation();
+    }
+  });
+
+  const form = document.getElementById('newsletter');
+  const emailInput = document.getElementById('email');
+  const status = document.getElementById('status');
+  const footerLink = document.querySelector('.footer-link');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const value = emailInput.value.trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    if (!valid) {
+      status.textContent = 'Please enter a valid email.';
+      status.style.color = 'rgba(255, 182, 182, 0.9)';
+      emailInput.focus();
+      return;
+    }
+    status.textContent = 'Sending...';
+    status.style.color = 'rgba(232, 242, 255, 0.7)';
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: value })
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(payload.error || 'Request failed');
+      }
+      status.textContent = 'Thanks. Check your inbox.';
+      status.style.color = 'rgba(45, 168, 255, 0.9)';
+      form.reset();
+    } catch (err) {
+      status.textContent = 'Something went wrong. Please try again.';
+      status.style.color = 'rgba(255, 182, 182, 0.9)';
+    }
+  });
+
+  const updateFooter = () => {
+    if (!footerLink) return;
+    if (window.scrollY > 80) {
+      footerLink.classList.add('is-visible');
+    } else {
+      footerLink.classList.remove('is-visible');
+    }
+  };
+  window.addEventListener('scroll', updateFooter, { passive: true });
+
+  setSize();
+  updateScroll();
+  updateFooter();
+  if (reducedMotion) {
+    render(0);
+  } else {
+    startAnimation();
+  }
+})();
+</script>
+</body>
+</html>
